@@ -1,0 +1,385 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== NextAuth 필수 테이블 ====================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ==================== 사용자 테이블 ====================
+
+enum UserRole {
+  ADMIN
+  USER
+  HOLDING
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  role          UserRole  @default(USER)
+  isActive      Boolean   @default(true)
+  userGroupId   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts   Account[]
+  sessions   Session[]
+  chats      Chat[]
+  chatGroups ChatGroup[]
+  userGroup  UserGroup?  @relation(fields: [userGroupId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([userGroupId])
+}
+
+// ==================== 사용자 그룹 테이블 ====================
+
+model UserGroup {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users User[]
+}
+
+// ==================== 시스템 설정 테이블 ====================
+
+model SystemSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  category  String   @default("general")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+}
+
+// ==================== 모델 설정 테이블 ====================
+
+enum ModelProvider {
+  OLLAMA
+  OPENAI
+  ANTHROPIC
+  CUSTOM
+}
+
+model ModelConfig {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  displayName String
+  provider    ModelProvider @default(OLLAMA)
+  endpoint    String?
+  apiKey      String?
+  isActive    Boolean       @default(true)
+  isDefault   Boolean       @default(false)
+  temperature Float         @default(0.7)
+  maxTokens   Int           @default(4096)
+  systemPrompt String?      @db.Text
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([provider])
+  @@index([isActive])
+}
+
+// ==================== 채팅 관련 테이블 ====================
+
+model ChatGroup {
+  id        String   @id @default(cuid())
+  name      String
+  userId    String
+  color     String?  @default("#6B7280")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chats Chat[]
+
+  @@index([userId])
+}
+
+model Chat {
+  id        String   @id @default(cuid())
+  title     String   @default("New Chat")
+  userId    String
+  modelName String   @default("llama3")
+  groupId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group    ChatGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  messages Message[]
+
+  @@index([userId])
+  @@index([groupId])
+  @@index([createdAt(sort: Desc)])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  chatId    String
+  role      Role     @default(USER)
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
+  @@index([createdAt])
+}
+
+enum Role {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+// ==================== RAG 파이프라인 설정 ====================
+
+// 임베딩 프로바이더
+enum EmbeddingProvider {
+  OLLAMA
+  OPENAI
+  HUGGINGFACE
+  CUSTOM
+}
+
+// 벡터 데이터베이스 타입
+enum VectorDBType {
+  CHROMA
+  FAISS
+  PGVECTOR
+  QDRANT
+  WEAVIATE
+  PINECONE
+}
+
+// 청킹 전략
+enum ChunkStrategy {
+  FIXED
+  RECURSIVE
+  SEMANTIC
+  MARKDOWN
+  HTML
+  CODE
+}
+
+// 파서 타입
+enum ParserType {
+  DEFAULT
+  UNSTRUCTURED
+  PYPDF
+  DOCX
+  MARKDOWN
+  HTML
+}
+
+// 리랭커 타입
+enum RerankerType {
+  NONE
+  COHERE
+  CROSSENCODER
+  COLBERT
+  CUSTOM
+}
+
+// 임베딩 설정
+model EmbeddingConfig {
+  id          String            @id @default(cuid())
+  name        String            @unique
+  displayName String
+  provider    EmbeddingProvider @default(OLLAMA)
+  modelName   String            @default("nomic-embed-text")
+  endpoint    String?
+  apiKey      String?
+  dimension   Int               @default(768)
+  isActive    Boolean           @default(true)
+  isDefault   Boolean           @default(false)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  ragPipelines RAGPipeline[]
+
+  @@index([provider])
+  @@index([isActive])
+}
+
+// 벡터 데이터베이스 설정
+model VectorDBConfig {
+  id              String       @id @default(cuid())
+  name            String       @unique
+  displayName     String
+  type            VectorDBType @default(CHROMA)
+  connectionUrl   String?
+  apiKey          String?
+  collectionName  String       @default("default")
+  isActive        Boolean      @default(true)
+  isDefault       Boolean      @default(false)
+  settings        String?      @db.Text  // JSON 형태의 추가 설정
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  ragPipelines RAGPipeline[]
+
+  @@index([type])
+  @@index([isActive])
+}
+
+// 청킹 설정
+model ChunkConfig {
+  id            String        @id @default(cuid())
+  name          String        @unique
+  displayName   String
+  strategy      ChunkStrategy @default(RECURSIVE)
+  chunkSize     Int           @default(1000)
+  chunkOverlap  Int           @default(200)
+  separators    String?       @db.Text  // JSON 배열 형태
+  // 시맨틱 청킹을 위한 외부 모델 설정
+  modelName     String?
+  endpoint      String?
+  apiKey        String?
+  isActive      Boolean       @default(true)
+  isDefault     Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  ragPipelines RAGPipeline[]
+
+  @@index([strategy])
+  @@index([isActive])
+}
+
+// 파서 설정
+model ParserConfig {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  displayName String
+  type        ParserType @default(DEFAULT)
+  // 외부 파싱 서비스 설정 (예: Unstructured API)
+  modelName   String?
+  endpoint    String?
+  apiKey      String?
+  settings    String?    @db.Text  // JSON 형태의 추가 설정
+  isActive    Boolean    @default(true)
+  isDefault   Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  ragPipelines RAGPipeline[]
+
+  @@index([type])
+  @@index([isActive])
+}
+
+// 리랭커 설정
+model RerankerConfig {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  displayName String
+  type        RerankerType @default(NONE)
+  modelName   String?
+  endpoint    String?
+  apiKey      String?
+  topK        Int          @default(5)
+  isActive    Boolean      @default(true)
+  isDefault   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  ragPipelines RAGPipeline[]
+
+  @@index([type])
+  @@index([isActive])
+}
+
+// RAG 파이프라인 설정 (종합)
+model RAGPipeline {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  displayName     String
+  description     String?  @db.Text
+
+  // 연결된 설정들
+  embeddingId     String
+  vectorDBId      String
+  chunkId         String
+  parserId        String?
+  rerankerId      String?
+
+  // LLM 모델 설정
+  modelConfigId   String?
+
+  // 검색 설정
+  topK            Int      @default(5)
+  scoreThreshold  Float    @default(0.7)
+
+  // 프롬프트 설정
+  systemPrompt    String?  @db.Text
+  contextTemplate String?  @db.Text  // 검색된 문서를 프롬프트에 삽입하는 템플릿
+
+  isActive        Boolean  @default(true)
+  isDefault       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  embedding   EmbeddingConfig  @relation(fields: [embeddingId], references: [id])
+  vectorDB    VectorDBConfig   @relation(fields: [vectorDBId], references: [id])
+  chunk       ChunkConfig      @relation(fields: [chunkId], references: [id])
+  parser      ParserConfig?    @relation(fields: [parserId], references: [id])
+  reranker    RerankerConfig?  @relation(fields: [rerankerId], references: [id])
+
+  @@index([isActive])
+  @@index([embeddingId])
+  @@index([vectorDBId])
+}
