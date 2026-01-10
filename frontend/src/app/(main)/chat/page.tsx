@@ -25,6 +25,8 @@ import { DataCollectionSidebar } from "@/components/chat/DataCollectionSidebar";
 import { DataCollectionFlow, type AnalysisTarget as BaseAnalysisTarget } from "@/components/chat/DataCollectionFlow";
 import { MarkdownRenderer } from "@/components/chat/MarkdownRenderer";
 import { AnalysisActionSidebar, type AnalysisStage } from "@/components/chat/AnalysisActionSidebar";
+import { ReportListModal } from "@/components/chat/ReportListModal";
+import { ReportViewer } from "@/components/chat/ReportViewer";
 import { useViewModeStore } from "@/stores/viewModeStore";
 import {
   getCustomerContactPrompt,
@@ -156,7 +158,7 @@ const CARD_DATA: CardData[] = [
     color: "text-orange-600",
     bgColor: "bg-orange-50 hover:bg-orange-100 border-orange-200",
     items: [
-      { label: "과거 보고서 수집", message: "과거 보고서를 수집해주세요." },
+      { label: "과거 보고서 수집", action: "past_reports", description: "과거 분석 보고서를 조회합니다." },
       { label: "2차분석 결과 집계", message: "2차분석 결과를 집계해주세요." },
       { label: "분석서 작성", message: "분석서를 작성해주세요." },
       { label: "내부 결재", message: "내부 결재 현황을 확인해주세요." },
@@ -255,6 +257,32 @@ export default function ChatPage() {
   const [completedAnalysisStages, setCompletedAnalysisStages] = useState<AnalysisStage[]>(["data_review"]);
   const [analysisActionSidebarOpen, setAnalysisActionSidebarOpen] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  // 과거 보고서 모달 상태
+  const [reportListOpen, setReportListOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<{
+    id: string;
+    caseNumber: string;
+    customer: string;
+    productModel: string;
+    lotId: string;
+    cellId: string;
+    defectType: string;
+    defectDescription: string;
+    defectLocation: string | null;
+    defectSize: string | null;
+    rootCause: string | null;
+    analysisResult: string | null;
+    correctiveAction: string | null;
+    preventiveAction: string | null;
+    responsibleDept: string | null;
+    responsiblePerson: string | null;
+    status: string;
+    reportedAt: string;
+    analyzedAt: string | null;
+    closedAt: string | null;
+    tags: string | null;
+  } | null>(null);
 
   // 메시지 영역 자동 스크롤
   useEffect(() => {
@@ -390,6 +418,11 @@ export default function ChatPage() {
 
     if (item.action === "similar_cases") {
       await handleSimilarCases();
+      return;
+    }
+
+    if (item.action === "past_reports") {
+      setReportListOpen(true);
       return;
     }
 
@@ -1128,6 +1161,29 @@ export default function ChatPage() {
         <div
           className="fixed inset-0 z-40"
           onClick={() => setIsDropdownOpen(false)}
+        />
+      )}
+
+      {/* 과거 보고서 목록 모달 */}
+      <ReportListModal
+        isOpen={reportListOpen}
+        onClose={() => {
+          setReportListOpen(false);
+          setSelectedReport(null);
+        }}
+        onViewReport={(report) => setSelectedReport(report)}
+        selectedTarget={selectedTarget}
+      />
+
+      {/* 보고서 상세 뷰어 */}
+      {selectedReport && (
+        <ReportViewer
+          report={selectedReport}
+          onClose={() => {
+            setSelectedReport(null);
+            setReportListOpen(false);
+          }}
+          onBack={() => setSelectedReport(null)}
         />
       )}
     </div>
