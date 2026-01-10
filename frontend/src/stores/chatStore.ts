@@ -22,7 +22,7 @@ interface ChatStore {
   fetchGroups: () => Promise<void>;
   createChat: (modelName?: string, groupId?: string) => Promise<Chat | null>;
   deleteChat: (id: string) => Promise<void>;
-  createGroup: (name: string, color?: string) => Promise<ChatGroup | null>;
+  createGroup: (name: string, color?: string, parentId?: string) => Promise<ChatGroup | null>;
   deleteGroup: (id: string) => Promise<void>;
   moveChatToGroup: (chatId: string, groupId: string | null) => Promise<void>;
 }
@@ -123,18 +123,19 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       });
     }
   },
-  createGroup: async (name, color) => {
+  createGroup: async (name, color, parentId) => {
     try {
       const response = await fetch("/api/groups", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, color }),
+        body: JSON.stringify({ name, color, parentId }),
       });
       if (!response.ok) {
         throw new Error("Failed to create group");
       }
       const group = await response.json();
-      get().addGroup(group);
+      // Refresh groups to get updated hierarchy
+      await get().fetchGroups();
       return group;
     } catch (error) {
       set({
@@ -151,13 +152,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       if (!response.ok) {
         throw new Error("Failed to delete group");
       }
-      get().removeGroup(id);
-      // Move chats from deleted group to ungrouped
-      set((state) => ({
-        chats: state.chats.map((c) =>
-          c.groupId === id ? { ...c, groupId: null } : c
-        ),
-      }));
+      // Refresh groups and chats to get updated state
+      await Promise.all([get().fetchGroups(), get().fetchChats()]);
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : "Unknown error",

@@ -1,0 +1,262 @@
+import { PrismaClient, DefectType, AnalysisStatus } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+const analysisCases = [
+  // 삼성전자 관련 사례
+  {
+    caseNumber: "CASE-2023-001",
+    customer: "삼성전자",
+    productModel: "OLED_67_FHD",
+    lotId: "LOT20230501001",
+    cellId: "CELL00123",
+    defectType: DefectType.DEAD_PIXEL,
+    defectDescription: "화면 중앙부 데드 픽셀 3개 발견. 밀집 형태로 위치하며 육안으로 확인 가능한 수준.",
+    defectLocation: "화면 중앙부 (50%, 50%)",
+    defectSize: "0.3mm x 0.3mm",
+    rootCause: "TFT 공정 중 이물질 유입으로 인한 트랜지스터 손상. 클린룸 파티클 관리 미흡.",
+    analysisResult: "증착 공정 중 파티클 유입으로 인한 TFT 단락 현상 확인. SEM 분석 결과 금속성 이물질 검출.",
+    correctiveAction: "해당 LOT 전수 검사 실시. 불량 패널 격리 및 교체 진행.",
+    preventiveAction: "클린룸 파티클 모니터링 강화. 증착 장비 정기 점검 주기 단축 (월 1회 → 주 1회).",
+    responsibleDept: "TFT 공정팀",
+    responsiblePerson: "김철수",
+    status: AnalysisStatus.CLOSED,
+    reportedAt: new Date("2023-05-03"),
+    analyzedAt: new Date("2023-05-08"),
+    closedAt: new Date("2023-05-12"),
+    tags: JSON.stringify(["데드픽셀", "TFT", "파티클", "클린룸"]),
+  },
+  {
+    caseNumber: "CASE-2023-002",
+    customer: "삼성전자",
+    productModel: "OLED_67_FHD",
+    lotId: "LOT20230505002",
+    cellId: "CELL00456",
+    defectType: DefectType.LINE_DEFECT,
+    defectDescription: "수직 방향 녹색 라인 결함 발생. 화면 좌측 20% 위치에서 상단부터 하단까지 연속.",
+    defectLocation: "화면 좌측 20% 수직 라인",
+    defectSize: "전체 높이 x 1픽셀",
+    rootCause: "소스 드라이버 IC 본딩 불량. COF 공정 중 정렬 오차 발생.",
+    analysisResult: "X-ray 검사 결과 소스 드라이버 IC와 패널 간 접촉 불량 확인. 해당 채널 open 상태.",
+    correctiveAction: "COF 리워크 진행. IC 재본딩 후 정상 동작 확인.",
+    preventiveAction: "본딩 장비 정렬 보정. 공정 파라미터 최적화. 전수 AOI 검사 강화.",
+    responsibleDept: "모듈 공정팀",
+    responsiblePerson: "이영희",
+    status: AnalysisStatus.COMPLETED,
+    reportedAt: new Date("2023-05-05"),
+    analyzedAt: new Date("2023-05-10"),
+    closedAt: null,
+    tags: JSON.stringify(["라인결함", "드라이버IC", "본딩", "COF"]),
+  },
+  {
+    caseNumber: "CASE-2023-003",
+    customer: "삼성전자",
+    productModel: "OLED_55_4K",
+    lotId: "LOT20230508003",
+    cellId: "CELL00789",
+    defectType: DefectType.MURA,
+    defectDescription: "전체 화면에 구름 형태의 밝기 불균일 현상. 특히 회색 화면에서 두드러짐.",
+    defectLocation: "전체 화면",
+    defectSize: "광범위",
+    rootCause: "유기물 증착 두께 불균일. 증착 마스크 열변형으로 인한 패턴 오차.",
+    analysisResult: "각 영역별 휘도 측정 결과 최대 15% 편차 확인. 증착 마스크 검사 결과 0.5mm 변형 발견.",
+    correctiveAction: "증착 마스크 교체. 해당 배치 전수 검사 후 출하 보류.",
+    preventiveAction: "마스크 수명 관리 체계 도입. 주기적 열화 검사 실시.",
+    responsibleDept: "OLED 증착팀",
+    responsiblePerson: "박지민",
+    status: AnalysisStatus.CLOSED,
+    reportedAt: new Date("2023-05-08"),
+    analyzedAt: new Date("2023-05-13"),
+    closedAt: new Date("2023-05-18"),
+    tags: JSON.stringify(["무라", "증착", "마스크", "휘도불균일"]),
+  },
+
+  // LG전자 관련 사례
+  {
+    caseNumber: "CASE-2023-004",
+    customer: "LG전자",
+    productModel: "AMOLED_55_4K",
+    lotId: "LOT20230510004",
+    cellId: "CELL01234",
+    defectType: DefectType.DEAD_PIXEL,
+    defectDescription: "화면 우측 상단부에 데드 픽셀 클러스터 발견. 약 5개 픽셀이 검은색으로 표시됨.",
+    defectLocation: "우측 상단 (80%, 20%)",
+    defectSize: "1.5mm x 1.0mm",
+    rootCause: "EL층 손상으로 인한 발광 불량. 캡슐화 공정 중 수분 침투 추정.",
+    analysisResult: "해당 영역 현미경 분석 결과 EL층 열화 확인. WVTR 테스트 결과 기준치 초과.",
+    correctiveAction: "캡슐화 공정 조건 재설정. 해당 LOT 출하 중단.",
+    preventiveAction: "캡슐화 장비 실링 상태 점검. 수분 차단층 두께 증가.",
+    responsibleDept: "캡슐화팀",
+    responsiblePerson: "최수진",
+    status: AnalysisStatus.CLOSED,
+    reportedAt: new Date("2023-05-10"),
+    analyzedAt: new Date("2023-05-15"),
+    closedAt: new Date("2023-05-20"),
+    tags: JSON.stringify(["데드픽셀", "캡슐화", "수분침투", "EL"]),
+  },
+  {
+    caseNumber: "CASE-2023-005",
+    customer: "LG전자",
+    productModel: "AMOLED_65_8K",
+    lotId: "LOT20230512005",
+    cellId: "CELL01567",
+    defectType: DefectType.BRIGHTNESS,
+    defectDescription: "화면 하단부 밝기가 상단 대비 20% 낮음. 백색 화면에서 명확히 구분됨.",
+    defectLocation: "화면 하단 30%",
+    defectSize: "화면 하단 전체",
+    rootCause: "백플레인 TFT 특성 편차. 공정 온도 불균일로 인한 이동도 차이.",
+    analysisResult: "각 영역별 TFT 특성 측정 결과 하단부 이동도 15% 저하 확인. 온도 프로파일 분석 결과 하단부 5°C 낮음.",
+    correctiveAction: "히터 존별 온도 보정. 해당 LOT 보상 회로 적용 검토.",
+    preventiveAction: "공정 온도 균일도 모니터링 시스템 도입. 히터 정기 교정.",
+    responsibleDept: "TFT 공정팀",
+    responsiblePerson: "정민호",
+    status: AnalysisStatus.COMPLETED,
+    reportedAt: new Date("2023-05-12"),
+    analyzedAt: new Date("2023-05-18"),
+    closedAt: null,
+    tags: JSON.stringify(["밝기불균일", "TFT", "온도", "이동도"]),
+  },
+
+  // 현대모비스 관련 사례
+  {
+    caseNumber: "CASE-2023-006",
+    customer: "현대모비스",
+    productModel: "OLED_77_8K",
+    lotId: "LOT20230515006",
+    cellId: "CELL02345",
+    defectType: DefectType.COLOR_SHIFT,
+    defectDescription: "시야각에 따른 색상 변이 심함. 정면 대비 45도 각도에서 청색 편이 발생.",
+    defectLocation: "전체 화면 (시야각 의존)",
+    defectSize: "전체",
+    rootCause: "마이크로캐비티 구조 설계 오류. 공진 파장 최적화 미흡.",
+    analysisResult: "각도별 스펙트럼 측정 결과 45도에서 주파장 10nm 시프트 확인. 시뮬레이션 대비 캐비티 두께 5% 오차.",
+    correctiveAction: "캐비티 구조 재설계. 다음 생산분부터 적용.",
+    preventiveAction: "설계 시뮬레이션 정확도 향상. 시야각 특성 출하 검사 항목 추가.",
+    responsibleDept: "OLED 설계팀",
+    responsiblePerson: "한지원",
+    status: AnalysisStatus.IN_PROGRESS,
+    reportedAt: new Date("2023-05-15"),
+    analyzedAt: null,
+    closedAt: null,
+    tags: JSON.stringify(["색상변이", "시야각", "마이크로캐비티", "설계"]),
+  },
+  {
+    caseNumber: "CASE-2023-007",
+    customer: "현대모비스",
+    productModel: "OLED_65_4K",
+    lotId: "LOT20230518007",
+    cellId: "CELL02678",
+    defectType: DefectType.LINE_DEFECT,
+    defectDescription: "수평 방향 적색 라인이 간헐적으로 발생. 특정 영상 패턴에서만 나타남.",
+    defectLocation: "화면 중앙부 수평 라인",
+    defectSize: "전체 너비 x 2픽셀",
+    rootCause: "게이트 드라이버 타이밍 불량. 구동 IC 펌웨어 버그.",
+    analysisResult: "오실로스코프 분석 결과 특정 프레임에서 게이트 신호 지연 확인. IC 로그 분석 결과 타이밍 오류 검출.",
+    correctiveAction: "드라이버 IC 펌웨어 업데이트. OTA 배포 예정.",
+    preventiveAction: "펌웨어 검증 테스트 케이스 추가. 다양한 영상 패턴 테스트.",
+    responsibleDept: "구동 설계팀",
+    responsiblePerson: "오승현",
+    status: AnalysisStatus.COMPLETED,
+    reportedAt: new Date("2023-05-18"),
+    analyzedAt: new Date("2023-05-23"),
+    closedAt: null,
+    tags: JSON.stringify(["라인결함", "드라이버", "펌웨어", "타이밍"]),
+  },
+
+  // SK하이닉스 관련 사례
+  {
+    caseNumber: "CASE-2023-008",
+    customer: "SK하이닉스",
+    productModel: "OLED_55_4K_PRO",
+    lotId: "LOT20230520008",
+    cellId: "CELL03456",
+    defectType: DefectType.CRACK,
+    defectDescription: "화면 모서리에서 시작되는 미세 크랙 발견. 육안으로는 보이지 않으나 확대 시 확인.",
+    defectLocation: "좌측 하단 모서리",
+    defectSize: "약 5mm",
+    rootCause: "패널 취급 중 충격으로 인한 유리 기판 손상. 물류 과정 중 발생 추정.",
+    analysisResult: "현미경 검사 결과 기판 표면 미세 크랙 확인. 파단면 분석 결과 외부 충격에 의한 취성 파괴.",
+    correctiveAction: "물류 포장재 개선. 충격 흡수 패드 추가.",
+    preventiveAction: "운송 중 충격 모니터링 시스템 도입. 물류 업체 교육 강화.",
+    responsibleDept: "물류팀",
+    responsiblePerson: "강태영",
+    status: AnalysisStatus.CLOSED,
+    reportedAt: new Date("2023-05-20"),
+    analyzedAt: new Date("2023-05-25"),
+    closedAt: new Date("2023-05-28"),
+    tags: JSON.stringify(["크랙", "물류", "포장", "기판"]),
+  },
+  {
+    caseNumber: "CASE-2023-009",
+    customer: "SK하이닉스",
+    productModel: "OLED_48_4K_GAMING",
+    lotId: "LOT20230522009",
+    cellId: "CELL03789",
+    defectType: DefectType.CONTAMINATION,
+    defectDescription: "화면 특정 영역에 얼룩 형태의 오염 발견. 닦아도 제거되지 않음.",
+    defectLocation: "화면 중앙 좌측",
+    defectSize: "약 10mm x 8mm",
+    rootCause: "봉지 공정 중 유기물 오염. 진공 챔버 내 아웃개싱 물질 증착.",
+    analysisResult: "FT-IR 분석 결과 실리콘 계열 오염물 검출. 챔버 내부 검사 결과 실링재 열화 확인.",
+    correctiveAction: "챔버 세정 및 실링재 교체. 오염 패널 폐기.",
+    preventiveAction: "챔버 내부 정기 클리닝 주기 단축. 실링재 수명 관리.",
+    responsibleDept: "봉지 공정팀",
+    responsiblePerson: "윤서연",
+    status: AnalysisStatus.COMPLETED,
+    reportedAt: new Date("2023-05-22"),
+    analyzedAt: new Date("2023-05-27"),
+    closedAt: null,
+    tags: JSON.stringify(["오염", "봉지", "진공챔버", "아웃개싱"]),
+  },
+
+  // 한화솔루션 관련 사례
+  {
+    caseNumber: "CASE-2023-010",
+    customer: "한화솔루션",
+    productModel: "OLED_32_4K_MONITOR",
+    lotId: "LOT20230525010",
+    cellId: "CELL04123",
+    defectType: DefectType.MURA,
+    defectDescription: "특정 밝기 레벨에서 세로 줄무늬 패턴 발생. 50% 그레이에서 가장 두드러짐.",
+    defectLocation: "전체 화면",
+    defectSize: "수직 방향 반복 패턴",
+    rootCause: "소스 드라이버 출력 편차. IC 제조 공정 변동으로 인한 채널별 특성 차이.",
+    analysisResult: "각 채널별 출력 전압 측정 결과 최대 3% 편차 확인. IC 로트별 분석 결과 특정 로트에서 집중 발생.",
+    correctiveAction: "해당 IC 로트 사용 중단. 보상 알고리즘 적용.",
+    preventiveAction: "IC 입고 검사 강화. 채널 균일도 스펙 타이트닝.",
+    responsibleDept: "품질관리팀",
+    responsiblePerson: "임준혁",
+    status: AnalysisStatus.PENDING,
+    reportedAt: new Date("2023-05-25"),
+    analyzedAt: null,
+    closedAt: null,
+    tags: JSON.stringify(["무라", "드라이버IC", "채널편차", "줄무늬"]),
+  },
+];
+
+async function main() {
+  console.log("Starting seed...");
+
+  // 기존 데이터 삭제
+  await prisma.analysisCase.deleteMany({});
+  console.log("Cleared existing analysis cases");
+
+  // 새 데이터 삽입
+  for (const caseData of analysisCases) {
+    await prisma.analysisCase.create({
+      data: caseData,
+    });
+    console.log(`Created case: ${caseData.caseNumber}`);
+  }
+
+  console.log(`Seed completed! Created ${analysisCases.length} analysis cases.`);
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

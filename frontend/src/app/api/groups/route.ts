@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// GET /api/groups - Get all groups for current user
+// GET /api/groups - Get all groups for current user (hierarchical)
 export async function GET() {
   try {
     const session = await auth();
@@ -16,6 +16,20 @@ export async function GET() {
       include: {
         chats: {
           select: { id: true },
+        },
+        children: {
+          include: {
+            chats: {
+              select: { id: true },
+            },
+            children: {
+              include: {
+                chats: {
+                  select: { id: true },
+                },
+              },
+            },
+          },
         },
       },
       orderBy: { createdAt: "asc" },
@@ -40,7 +54,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { name, color } = await req.json();
+    const { name, color, parentId } = await req.json();
 
     if (!name || typeof name !== "string") {
       return NextResponse.json(
@@ -49,11 +63,31 @@ export async function POST(req: Request) {
       );
     }
 
+    // Verify parent group belongs to user if parentId is provided
+    if (parentId) {
+      const parentGroup = await prisma.chatGroup.findFirst({
+        where: { id: parentId, userId: session.user.id },
+      });
+      if (!parentGroup) {
+        return NextResponse.json(
+          { error: "Parent group not found" },
+          { status: 404 }
+        );
+      }
+    }
+
     const group = await prisma.chatGroup.create({
       data: {
         name: name.trim(),
         color: color || "#6B7280",
         userId: session.user.id,
+        parentId: parentId || null,
+      },
+      include: {
+        chats: {
+          select: { id: true },
+        },
+        children: true,
       },
     });
 

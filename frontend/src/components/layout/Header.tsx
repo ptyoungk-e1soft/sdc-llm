@@ -3,14 +3,18 @@
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PanelLeft, PanelRight, LogOut, User, Settings } from "lucide-react";
 import { useSidebarStore } from "@/stores/sidebarStore";
+import { useViewModeStore } from "@/stores/viewModeStore";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 
 export function Header() {
   const { data: session } = useSession();
   const { toggleLeftSidebar, toggleRightSidebar } = useSidebarStore();
+  const { resetToCards } = useViewModeStore();
+  const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -40,7 +44,15 @@ export function Header() {
         >
           <PanelLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-semibold text-gray-900">e1soft LLM</h1>
+        <button
+          onClick={() => {
+            resetToCards();
+            router.push("/chat");
+          }}
+          className="hover:opacity-80 transition-opacity"
+        >
+          <h1 className="text-lg font-semibold text-gray-900">e1soft LLM</h1>
+        </button>
       </div>
 
       <div className="flex items-center gap-2">

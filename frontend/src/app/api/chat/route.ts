@@ -2,6 +2,19 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8000";
+const DEFAULT_MODEL = "qwen3:32b";
+
+// Get default model from system settings
+async function getDefaultModel(): Promise<string> {
+  try {
+    const setting = await prisma.systemSettings.findUnique({
+      where: { key: "llm.defaultModel" },
+    });
+    return setting?.value || DEFAULT_MODEL;
+  } catch {
+    return DEFAULT_MODEL;
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -12,6 +25,10 @@ export async function POST(req: Request) {
     }
 
     const { messages, model, chatId, debug } = await req.json();
+
+    // Get default model from settings if not provided
+    const defaultModel = await getDefaultModel();
+    const selectedModel = model || defaultModel;
 
     // Extract content from messages (handle both old format and new parts format)
     const getContent = (msg: { content?: string; parts?: { type: string; text: string }[] }) => {
@@ -69,7 +86,7 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         messages: backendMessages,
-        model: model || "qwen3:32b",
+        model: selectedModel,
         debug: debug || false,
       }),
     });

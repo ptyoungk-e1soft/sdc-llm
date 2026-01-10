@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, FormEvent, useCallback } from "react";
+import { useState, FormEvent, useCallback, useEffect, useRef } from "react";
 import { useModelStore } from "@/stores/modelStore";
 import { useChatStore } from "@/stores/chatStore";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
 import { LangGraphDebugPanel } from "./LangGraphDebugPanel";
+import { EmailReceiveFlow } from "./EmailReceiveFlow";
+import { DataCollectionSidebar } from "./DataCollectionSidebar";
 
 interface Message {
   id: string;
@@ -22,18 +24,42 @@ interface StreamStats {
   node: string;
 }
 
+interface EmailReceiveData {
+  customer: string;
+  productModel: string;
+  lotId: string;
+  cellId: string;
+  defectType: string;
+  defectDescription: string;
+  emailContent: string;
+}
+
+interface ActionData {
+  action: string;
+  data?: EmailReceiveData;
+  context?: string;        // 유사 사례 등 컨텍스트 데이터
+  initialMessage?: string; // 컨텍스트와 함께 보낼 초기 메시지
+}
+
 interface ChatContainerProps {
   chatId: string;
   initialMessages?: Message[];
+  initialMessage?: string;
+  actionData?: ActionData;
 }
 
-export function ChatContainer({ chatId, initialMessages = [] }: ChatContainerProps) {
+export function ChatContainer({ chatId, initialMessages = [], initialMessage, actionData }: ChatContainerProps) {
   const { selectedModel } = useModelStore();
   const { updateChat } = useChatStore();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const initialMessageSent = useRef(false);
+
+  // Data collection sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(actionData?.action === "data_collection");
+  const [selectedMenuId, setSelectedMenuId] = useState<string | undefined>();
 
   // Debug mode state
   const [debugMode, setDebugMode] = useState(false);
@@ -42,7 +68,7 @@ export function ChatContainer({ chatId, initialMessages = [] }: ChatContainerPro
   const [elapsedMs, setElapsedMs] = useState(0);
   const [streamStats, setStreamStats] = useState<StreamStats | null>(null);
 
-  const sendMessage = useCallback(async (content: string) => {
+  const sendMessage = useCallback(async (content: string, systemContext?: string) => {
     if (!content.trim() || isLoading) return;
 
     setIsLoading(true);
@@ -89,6 +115,14 @@ export function ChatContainer({ chatId, initialMessages = [] }: ChatContainerPro
         role: msg.role,
         content: msg.parts.map((p) => p.text).join(""),
       }));
+
+      // 시스템 컨텍스트가 있으면 첫 번째 메시지로 추가
+      if (systemContext && messages.length === 0) {
+        apiMessages.unshift({
+          role: "user" as const,
+          content: `[시스템 컨텍스트 - 참고 데이터]\n${systemContext}\n\n위 데이터를 참고하여 분석해주세요.`,
+        });
+      }
 
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -169,6 +203,38 @@ export function ChatContainer({ chatId, initialMessages = [] }: ChatContainerPro
     }
   }, [chatId, isLoading, messages, selectedModel, updateChat, debugMode]);
 
+  // 초기 메시지 또는 sessionStorage 액션 처리
+  useEffect(() => {
+    if (initialMessageSent.current || messages.length > 0) return;
+
+    // 1. sessionStorage에서 액션 데이터 확인 (유사 사례 등)
+    const storageKey = `chat_action_${chatId}`;
+    const storedData = sessionStorage.getItem(storageKey);
+
+    if (storedData) {
+      try {
+        const actionDataFromStorage = JSON.parse(storedData);
+        console.log("Found actionData in sessionStorage:", actionDataFromStorage.action);
+
+        if (actionDataFromStorage.action === "similar_cases" && actionDataFromStorage.context && actionDataFromStorage.initialMessage) {
+          console.log("Sending similar cases message with context from sessionStorage");
+          initialMessageSent.current = true;
+          sessionStorage.removeItem(storageKey);
+          sendMessage(actionDataFromStorage.initialMessage, actionDataFromStorage.context);
+          return;
+        }
+      } catch (e) {
+        console.error("Failed to parse actionData from sessionStorage:", e);
+      }
+    }
+
+    // 2. 일반 초기 메시지 처리
+    if (initialMessage) {
+      initialMessageSent.current = true;
+      sendMessage(initialMessage);
+    }
+  }, [chatId, initialMessage, messages.length, sendMessage]);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -178,72 +244,100 @@ export function ChatContainer({ chatId, initialMessages = [] }: ChatContainerPro
     await sendMessage(messageContent);
   };
 
+  const handleSidebarMenuSelect = (message: string) => {
+    // Find the menu id based on message
+    const menuMap: Record<string, string> = {
+      "생산 실적 이력을 확인해주세요.": "production",
+      "품질검사 및 불량이력을 조회해주세요.": "quality",
+      "공정 및 설비 이력을 확인해주세요.": "process",
+      "개발 이력 데이터를 조회해주세요.": "development",
+      "변경점 이력을 확인해주세요.": "changes",
+    };
+    setSelectedMenuId(menuMap[message]);
+    sendMessage(message);
+  };
+
+  // Handle email receive action
+  if (actionData?.action === "email_receive" && actionData.data) {
+    return <EmailReceiveFlow data={actionData.data} />;
+  }
+
   return (
-    <div className="flex flex-col h-full">
-      {/* Debug Toggle */}
-      <div className="flex justify-end px-4 py-2 border-b border-gray-100">
-        <button
-          onClick={() => setDebugMode(!debugMode)}
-          className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
-            debugMode
-              ? "bg-green-100 text-green-700 border border-green-300"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-          }`}
-        >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+    <div className="flex h-full">
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col h-full">
+        {/* Debug Toggle */}
+        <div className="flex justify-end px-4 py-2 border-b border-gray-100">
+          <button
+            onClick={() => setDebugMode(!debugMode)}
+            className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+              debugMode
+                ? "bg-green-100 text-green-700 border border-green-300"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+              />
+            </svg>
+            LangGraph Debug
+            {debugMode && <span className="w-2 h-2 bg-green-500 rounded-full" />}
+          </button>
+        </div>
+
+        {/* Debug Panel */}
+        {debugMode && (
+          <div className="px-4 py-2">
+            <LangGraphDebugPanel
+              isStreaming={isLoading}
+              currentNode={currentNode}
+              tokenCount={tokenCount}
+              elapsedMs={elapsedMs}
+              stats={streamStats}
             />
-          </svg>
-          LangGraph Debug
-          {debugMode && <span className="w-2 h-2 bg-green-500 rounded-full" />}
-        </button>
-      </div>
+          </div>
+        )}
 
-      {/* Debug Panel */}
-      {debugMode && (
-        <div className="px-4 py-2">
-          <LangGraphDebugPanel
-            isStreaming={isLoading}
-            currentNode={currentNode}
-            tokenCount={tokenCount}
-            elapsedMs={elapsedMs}
-            stats={streamStats}
-          />
-        </div>
-      )}
+        {/* Messages Area - Takes up remaining space */}
+        <MessageList messages={messages} isLoading={isLoading} />
 
-      {/* Messages Area - Takes up remaining space */}
-      <MessageList messages={messages} isLoading={isLoading} />
+        {/* Error Display */}
+        {error && (
+          <div className="px-4 py-2 bg-red-50 border-t border-red-200">
+            <p className="text-sm text-red-600">{error.message}</p>
+          </div>
+        )}
 
-      {/* Error Display */}
-      {error && (
-        <div className="px-4 py-2 bg-red-50 border-t border-red-200">
-          <p className="text-sm text-red-600">{error.message}</p>
-        </div>
-      )}
-
-      {/* Input Area - Fixed at bottom */}
-      <div className="border-t border-gray-200 p-4 bg-white">
-        <div className="max-w-3xl mx-auto">
-          <ChatInput
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onSubmit={handleSubmit}
-            isLoading={isLoading}
-            placeholder="Type your message..."
-            selectedModel={selectedModel}
-          />
+        {/* Input Area - Fixed at bottom */}
+        <div className="border-t border-gray-200 p-4 bg-white">
+          <div className="max-w-3xl mx-auto">
+            <ChatInput
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
+              placeholder="Type your message..."
+            />
+          </div>
         </div>
       </div>
+
+      {/* Data Collection Sidebar */}
+      <DataCollectionSidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        onSelectMenu={handleSidebarMenuSelect}
+        selectedMenuId={selectedMenuId}
+      />
     </div>
   );
 }

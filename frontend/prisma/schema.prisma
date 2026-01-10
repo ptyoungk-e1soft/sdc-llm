@@ -137,14 +137,18 @@ model ChatGroup {
   id        String   @id @default(cuid())
   name      String
   userId    String
+  parentId  String?
   color     String?  @default("#6B7280")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chats Chat[]
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent   ChatGroup?  @relation("GroupHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children ChatGroup[] @relation("GroupHierarchy")
+  chats    Chat[]
 
   @@index([userId])
+  @@index([parentId])
 }
 
 model Chat {
@@ -182,6 +186,72 @@ enum Role {
   USER
   ASSISTANT
   SYSTEM
+}
+
+// ==================== 품질 분석 사례 테이블 ====================
+
+enum DefectType {
+  DEAD_PIXEL      // 데드 픽셀
+  LINE_DEFECT     // 라인 결함
+  MURA            // 얼룩
+  BRIGHTNESS      // 밝기 불균일
+  COLOR_SHIFT     // 색상 변이
+  CRACK           // 크랙
+  CONTAMINATION   // 오염
+  OTHER           // 기타
+}
+
+enum AnalysisStatus {
+  PENDING         // 대기중
+  IN_PROGRESS     // 분석중
+  COMPLETED       // 완료
+  CLOSED          // 종결
+}
+
+model AnalysisCase {
+  id              String         @id @default(cuid())
+  caseNumber      String         @unique  // 사례 번호 (예: CASE-2024-001)
+
+  // 고객 및 제품 정보
+  customer        String                  // 고객사
+  productModel    String                  // 제품 모델
+  lotId           String                  // LOT ID
+  cellId          String?                 // Cell ID
+
+  // 결함 정보
+  defectType      DefectType              // 결함 유형
+  defectDescription String    @db.Text    // 결함 상세 설명
+  defectLocation  String?                 // 결함 위치
+  defectSize      String?                 // 결함 크기
+
+  // 분석 결과
+  rootCause       String?       @db.Text  // 근본 원인
+  analysisResult  String?       @db.Text  // 분석 결과
+  correctiveAction String?     @db.Text   // 시정 조치
+  preventiveAction String?     @db.Text   // 예방 조치
+
+  // 귀책 정보
+  responsibleDept String?                 // 귀책 부서
+  responsiblePerson String?               // 담당자
+
+  // 상태 및 날짜
+  status          AnalysisStatus @default(PENDING)
+  reportedAt      DateTime                // 접수일
+  analyzedAt      DateTime?               // 분석 완료일
+  closedAt        DateTime?               // 종결일
+
+  // 메타 정보
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // 관련 태그 (검색용)
+  tags            String?       @db.Text  // JSON 배열 형태
+
+  @@index([customer])
+  @@index([productModel])
+  @@index([defectType])
+  @@index([status])
+  @@index([reportedAt])
 }
 
 // ==================== RAG 파이프라인 설정 ====================

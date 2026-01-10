@@ -23,10 +23,12 @@ export interface ChatGroup {
   id: string;
   name: string;
   userId: string;
+  parentId?: string | null;
   color?: string;
   createdAt: Date;
   updatedAt: Date;
   chats?: { id: string }[];
+  children?: ChatGroup[];
 }
 
 export interface ChatCreateInput {

@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useEffect, KeyboardEvent, ChangeEvent } from "react";
-import { Send, Loader2, Bot } from "lucide-react";
+import { useRef, useEffect, KeyboardEvent, ChangeEvent, useState } from "react";
+import { Send, Loader2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { useModelStore } from "@/stores/modelStore";
 
 interface ChatInputProps {
   value: string;
@@ -12,7 +13,6 @@ interface ChatInputProps {
   isLoading?: boolean;
   disabled?: boolean;
   placeholder?: string;
-  selectedModel?: string;
 }
 
 export function ChatInput({
@@ -22,9 +22,28 @@ export function ChatInput({
   isLoading = false,
   disabled = false,
   placeholder = "Type your message...",
-  selectedModel,
 }: ChatInputProps) {
+  const [mounted, setMounted] = useState(false);
+  const models = useModelStore((state) => state.models);
+  const selectedModel = useModelStore((state) => state.selectedModel);
+  const setSelectedModel = useModelStore((state) => state.setSelectedModel);
+  const fetchModels = useModelStore((state) => state.fetchModels);
+  const initializeStore = useModelStore((state) => state.initializeStore);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Handle client-side mounting and initialize store
+  useEffect(() => {
+    setMounted(true);
+    initializeStore?.();
+  }, [initializeStore]);
+
+  // Fetch models on mount
+  useEffect(() => {
+    if (mounted && models?.length === 0) {
+      fetchModels?.();
+    }
+  }, [mounted, models?.length, fetchModels]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -75,15 +94,36 @@ export function ChatInput({
           )}
         </Button>
       </div>
-      <div className="flex items-center justify-center gap-2 mt-1">
-        {selectedModel && (
-          <span className="flex items-center gap-1 text-xs text-gray-500">
-            <Bot className="h-3 w-3" />
-            {selectedModel}
-          </span>
+      <div className="flex items-center justify-center gap-3 mt-2">
+        {mounted && (
+          <div className="relative">
+            <select
+              value={selectedModel || ""}
+              onChange={(e) => setSelectedModel?.(e.target.value)}
+              disabled={isLoading}
+              className={cn(
+                "appearance-none bg-gray-100 border border-gray-200 rounded-md",
+                "pl-3 pr-8 py-1.5 text-xs text-gray-600",
+                "focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400",
+                "cursor-pointer hover:bg-gray-150 transition-colors",
+                isLoading && "opacity-50 cursor-not-allowed"
+              )}
+            >
+              {models && models.length > 0 ? (
+                models.map((model) => (
+                  <option key={model.name} value={model.name}>
+                    {model.name}
+                  </option>
+                ))
+              ) : (
+                <option value={selectedModel || ""}>{selectedModel || "Loading..."}</option>
+              )}
+            </select>
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 pointer-events-none" />
+          </div>
         )}
         <span className="text-xs text-gray-400">
-          Press Enter to send, Shift+Enter for new line
+          Enter to send, Shift+Enter for new line
         </span>
       </div>
     </form>
