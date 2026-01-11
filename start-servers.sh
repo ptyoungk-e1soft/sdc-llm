@@ -249,15 +249,23 @@ start_gradio() {
         source .venv/bin/activate
     fi
 
+    # 오프라인 환경을 위한 설정
+    export GRADIO_ANALYTICS_ENABLED=False
+    export GRADIO_SERVER_NAME=0.0.0.0
+
     nohup python demo/app_full.py > /tmp/gradio.log 2>&1 &
 
-    sleep 5
-    if check_port 7860; then
-        log_success "Gradio 서버 시작됨 (localhost:7860)"
-    else
-        log_error "Gradio 서버 시작 실패 - 로그: /tmp/gradio.log"
-        return 1
-    fi
+    # 시작 대기 (최대 15초, 3초 간격으로 확인)
+    for i in 1 2 3 4 5; do
+        sleep 3
+        if check_port 7860; then
+            log_success "Gradio 서버 시작됨 (localhost:7860)"
+            return 0
+        fi
+    done
+
+    log_error "Gradio 서버 시작 실패 - 로그: /tmp/gradio.log"
+    return 1
 }
 
 # 모든 서버 종료
