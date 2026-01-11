@@ -223,7 +223,7 @@ type ViewMode = "cards" | "data_collection" | "chat";
 
 export default function ChatPage() {
   const router = useRouter();
-  const { createChat, createGroup, groups, fetchGroups, moveChatToGroup } = useChatStore();
+  const { createChat, createGroup, groups, fetchGroups, fetchChats, moveChatToGroup } = useChatStore();
   const { selectedModel } = useModelStore();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTarget, setSelectedTarget] = useState<AnalysisTarget | null>(REGISTERED_TARGETS[0]);
@@ -567,10 +567,67 @@ export default function ChatPage() {
   };
 
   // 데이터 수집 완료 핸들러
-  const handleDataCollectionComplete = (context: string) => {
+  const handleDataCollectionComplete = async (context: string) => {
     setCollectedContext(context);
     setViewMode("chat");
     setSidebarOpen(true);
+
+    // 데이터 수집 내용을 히스토리에 저장
+    try {
+      // 1. "데이터수집" 그룹 찾기 또는 생성
+      const groupsResponse = await fetch("/api/groups");
+      const currentGroups = groupsResponse.ok ? await groupsResponse.json() : [];
+
+      let dataCollectionGroup = currentGroups.find((g: { name: string }) => g.name === "데이터수집");
+      if (!dataCollectionGroup) {
+        const newGroupResponse = await fetch("/api/groups", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: "데이터수집", color: "#3b82f6" }),
+        });
+        if (newGroupResponse.ok) {
+          dataCollectionGroup = await newGroupResponse.json();
+        }
+      }
+
+      if (dataCollectionGroup && selectedTarget) {
+        // 2. 새 채팅 생성
+        const chatTitle = `[수집] ${selectedTarget.customer} - ${selectedTarget.productModel} (${selectedTarget.defectType})`;
+        const chatResponse = await fetch("/api/chats", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            modelName: selectedModel,
+            groupId: dataCollectionGroup.id,
+            title: chatTitle,
+          }),
+        });
+
+        if (chatResponse.ok) {
+          const chat = await chatResponse.json();
+
+          // 3. 수집된 데이터를 메시지로 저장
+          const dataCollectionMessage = `## 데이터 수집 완료\n\n**분석 대상 정보:**\n- 고객사: ${selectedTarget.customer}\n- 제품모델: ${selectedTarget.productModel}\n- LOT ID: ${selectedTarget.lotId}\n- Cell ID: ${selectedTarget.cellId}\n- 결함유형: ${selectedTarget.defectType}\n- 접수일: ${selectedTarget.registeredAt}\n\n---\n\n${context}`;
+
+          await fetch(`/api/chats/${chat.id}/messages`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              messages: [
+                { role: "USER", content: "데이터 수집을 완료했습니다." },
+                { role: "ASSISTANT", content: dataCollectionMessage },
+              ],
+            }),
+          });
+
+          // 4. 그룹 및 채팅 목록 새로고침
+          await Promise.all([fetchGroups(), fetchChats()]);
+          console.log("데이터 수집 내용이 히스토리에 저장되었습니다.");
+        }
+      }
+    } catch (error) {
+      console.error("데이터 수집 저장 실패:", error);
+    }
 
     // 수집된 데이터를 기반으로 첫 분석 요청
     const analysisPrompt = selectedTarget
@@ -772,8 +829,8 @@ export default function ChatPage() {
       const saveResult = await saveMessagesResponse.json();
       console.log("저장 결과:", saveResult);
 
-      // 5. 그룹 목록 새로고침
-      await fetchGroups();
+      // 5. 그룹 및 채팅 목록 새로고침
+      await Promise.all([fetchGroups(), fetchChats()]);
 
       alert(`기본분석이 저장되었습니다. (${saveResult.count}개 메시지)`);
 

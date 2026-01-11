@@ -16,6 +16,7 @@ interface EmailReceiveData {
 
 interface EmailReceiveFlowProps {
   data: EmailReceiveData;
+  onSaveToHistory?: (data: EmailReceiveData, translatedContent: string) => Promise<void>;
 }
 
 // 번역된 메일 내용 (목업)
@@ -52,9 +53,10 @@ Apple Inc.`;
 
 type FlowStep = "receiving" | "original" | "translating" | "translated" | "ready";
 
-export function EmailReceiveFlow({ data }: EmailReceiveFlowProps) {
+export function EmailReceiveFlow({ data, onSaveToHistory }: EmailReceiveFlowProps) {
   const [currentStep, setCurrentStep] = useState<FlowStep>("receiving");
   const [showOriginal, setShowOriginal] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     // Simulate email receiving delay
@@ -78,7 +80,19 @@ export function EmailReceiveFlow({ data }: EmailReceiveFlowProps) {
     setCurrentStep("ready");
   };
 
-  const handleOpenExternal = () => {
+  const handleOpenExternal = async () => {
+    // 히스토리에 저장
+    if (onSaveToHistory) {
+      setIsSaving(true);
+      try {
+        await onSaveToHistory(data, TRANSLATED_EMAIL_CONTENT);
+      } catch (error) {
+        console.error("히스토리 저장 실패:", error);
+      } finally {
+        setIsSaving(false);
+      }
+    }
+
     // Open the external complaint registration system
     // URL with query parameters for pre-filling the form
     const params = new URLSearchParams({

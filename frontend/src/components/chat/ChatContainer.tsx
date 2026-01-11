@@ -50,7 +50,7 @@ interface ChatContainerProps {
 
 export function ChatContainer({ chatId, initialMessages = [], initialMessage, actionData }: ChatContainerProps) {
   const { selectedModel } = useModelStore();
-  const { updateChat } = useChatStore();
+  const { updateChat, createChat, createGroup, groups, fetchGroups, fetchChats, moveChatToGroup } = useChatStore();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
@@ -257,9 +257,75 @@ export function ChatContainer({ chatId, initialMessages = [], initialMessage, ac
     sendMessage(message);
   };
 
+  // Handle save to history for email receive flow
+  const handleSaveEmailToHistory = async (data: EmailReceiveData, translatedContent: string) => {
+    try {
+      // 1. "고객불량 확인" 그룹 찾기 또는 생성
+      let targetGroup = groups.find(g => g.name === "고객불량 확인");
+      if (!targetGroup) {
+        const newGroup = await createGroup("고객불량 확인");
+        if (newGroup) {
+          targetGroup = newGroup;
+        } else {
+          await fetchGroups();
+          // 스토어에서 다시 조회 (useChatStore.getState() 사용)
+          const currentGroups = useChatStore.getState().groups;
+          targetGroup = currentGroups.find(g => g.name === "고객불량 확인");
+        }
+      }
+
+      // 2. 새 채팅 생성 (그룹에 바로 생성)
+      const chatTitle = `[${data.customer}] ${data.productModel} - ${data.defectType}`;
+      const newChat = await createChat(chatTitle, targetGroup?.id);
+
+      if (!newChat) {
+        throw new Error("채팅 생성 실패");
+      }
+
+      // 3. 메시지 저장 API 호출
+      const emailSummary = `고객사: ${data.customer}
+제품 모델: ${data.productModel}
+LOT ID: ${data.lotId}
+Cell ID: ${data.cellId}
+결함 유형: ${data.defectType}
+결함 설명: ${data.defectDescription}
+
+=== 원문 이메일 ===
+${data.emailContent}
+
+=== 번역된 이메일 ===
+${translatedContent}`;
+
+      await fetch(`/api/chats/${newChat.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: "user",
+              content: `[고객불량 분석 요청] ${data.customer}사 - ${data.defectType} 결함 접수`,
+            },
+            {
+              role: "assistant",
+              content: emailSummary,
+            },
+          ],
+        }),
+      });
+
+      // 4. 히스토리 새로고침
+      await Promise.all([fetchGroups(), fetchChats()]);
+
+      console.log("고객불량 확인 그룹에 이력 저장 완료");
+    } catch (error) {
+      console.error("히스토리 저장 실패:", error);
+      throw error;
+    }
+  };
+
   // Handle email receive action
   if (actionData?.action === "email_receive" && actionData.data) {
-    return <EmailReceiveFlow data={actionData.data} />;
+    return <EmailReceiveFlow data={actionData.data} onSaveToHistory={handleSaveEmailToHistory} />;
   }
 
   return (
