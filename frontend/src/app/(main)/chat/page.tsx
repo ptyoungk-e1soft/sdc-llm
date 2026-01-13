@@ -869,7 +869,7 @@ export default function ChatPage() {
           <div className="flex items-center justify-between gap-4 mb-2">
             <div className="flex items-center gap-4">
               <h1 className="text-2xl font-bold text-gray-800">
-                품질 분석 시스템
+                품질분석 Chatbot
               </h1>
               {/* 메일 수신/접수 버튼 */}
               <button

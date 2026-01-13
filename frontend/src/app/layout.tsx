@@ -10,8 +10,8 @@ const inter = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "e1soft LLM - Local AI Chat",
-  description: "Local LLM chat system with LangServe and Ollama",
+  title: "SDC 고객품질 분석 AI 시스템",
+  description: "SDC 고객품질 분석 AI 시스템 - LangServe and Ollama 기반",
 };
 
 export default function RootLayout({

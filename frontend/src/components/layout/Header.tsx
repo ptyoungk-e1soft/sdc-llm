@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PanelLeft, PanelRight, LogOut, User, Settings } from "lucide-react";
+import { PanelLeft, PanelRight, LogOut, User, Settings, ExternalLink } from "lucide-react";
 import { useSidebarStore } from "@/stores/sidebarStore";
 import { useViewModeStore } from "@/stores/viewModeStore";
 import { Button } from "@/components/ui/Button";
@@ -51,11 +51,22 @@ export function Header() {
           }}
           className="hover:opacity-80 transition-opacity"
         >
-          <h1 className="text-lg font-semibold text-gray-900">e1soft LLM</h1>
+          <h1 className="text-lg font-semibold text-gray-900">SDC 고객품질 분석 AI 시스템</h1>
         </button>
       </div>
 
       <div className="flex items-center gap-2">
+        <a
+          href="http://localhost:7860"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-indigo-600 rounded-md hover:from-purple-600 hover:to-indigo-700 transition-all shadow-sm"
+          title="결함 분석 시스템"
+        >
+          <ExternalLink className="h-4 w-4" />
+          결함분석시스템
+        </a>
+
         <Button
           variant="ghost"
           size="icon"
