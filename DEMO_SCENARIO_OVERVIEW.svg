@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e3a8a"/>
+      <stop offset="50%" style="stop-color:#6d28d9"/>
+      <stop offset="100%" style="stop-color:#1e3a8a"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="3" stdDeviation="4" flood-opacity="0.2"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+      <polygon points="0 0, 12 4, 0 8" fill="#3b82f6"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+      <polygon points="0 0, 12 4, 0 8" fill="#10b981"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="900" fill="#f8fafc"/>
+
+  <!-- Header -->
+  <rect x="0" y="0" width="1600" height="90" fill="url(#headerGrad)"/>
+  <text x="800" y="40" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white" text-anchor="middle">SDC 고객품질 분석 AI 시스템</text>
+  <text x="800" y="70" font-family="Arial, sans-serif" font-size="16" fill="#c7d2fe" text-anchor="middle">AI 기반 품질 불량 분석 자동화 | 40 Steps | 총 시연 30분</text>
+
+  <!-- Main Flow Section -->
+  <text x="800" y="125" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#1e3a8a" text-anchor="middle">전체 업무 흐름</text>
+
+  <!-- Flow Steps -->
+  <!-- 1. 고객 불량 접수 -->
+  <rect x="40" y="145" width="180" height="100" rx="12" fill="white" filter="url(#shadow)"/>
+  <rect x="40" y="145" width="180" height="35" rx="12" fill="#f59e0b"/>
+  <rect x="40" y="168" width="180" height="12" fill="#f59e0b"/>
+  <text x="130" y="170" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">1. 고객 불량 접수</text>
+  <text x="55" y="200" font-family="Arial, sans-serif" font-size="10" fill="#475569">영문 메일 자동 파싱</text>
+  <text x="55" y="215" font-family="Arial, sans-serif" font-size="10" fill="#475569">AI 번역, 정보 추출</text>
+  <text x="55" y="230" font-family="Arial, sans-serif" font-size="10" fill="#475569">CS 워크플로우 연동</text>
+
+  <line x1="220" y1="195" x2="250" y2="195" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowBlue)"/>
+
+  <!-- 2. 데이터 수집 -->
+  <rect x="250" y="145" width="180" height="100" rx="12" fill="white" filter="url(#shadow)"/>
+  <rect x="250" y="145" width="180" height="35" rx="12" fill="#22c55e"/>
+  <rect x="250" y="168" width="180" height="12" fill="#22c55e"/>
+  <text x="340" y="170" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">2. 데이터 수집</text>
+  <text x="265" y="200" font-family="Arial, sans-serif" font-size="10" fill="#475569">MES/QMS/EES 통합</text>
+  <text x="265" y="215" font-family="Arial, sans-serif" font-size="10" fill="#475569">생산실적, 품질검사</text>
+  <text x="265" y="230" font-family="Arial, sans-serif" font-size="10" fill="#475569">공정/설비 파라미터</text>
+
+  <line x1="430" y1="195" x2="460" y2="195" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowBlue)"/>
+
+  <!-- 3. AI 기본 분석 -->
+  <rect x="460" y="145" width="180" height="100" rx="12" fill="white" filter="url(#shadow)"/>
+  <rect x="460" y="145" width="180" height="35" rx="12" fill="#ec4899"/>
+  <rect x="460" y="168" width="180" height="12" fill="#ec4899"/>
+  <text x="550" y="170" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">3. AI 기본 분석</text>
+  <text x="475" y="200" font-family="Arial, sans-serif" font-size="10" fill="#475569">원인 추정 (신뢰도%)</text>
+  <text x="475" y="215" font-family="Arial, sans-serif" font-size="10" fill="#475569">귀책부서 분석</text>
+  <text x="475" y="230" font-family="Arial, sans-serif" font-size="10" fill="#475569">유사 사례 조회</text>
+
+  <line x1="640" y1="195" x2="670" y2="195" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowBlue)"/>
+
+  <!-- 4. 고급 분석 -->
+  <rect x="670" y="145" width="180" height="100" rx="12" fill="white" filter="url(#shadow)"/>
+  <rect x="670" y="145" width="180" height="35" rx="12" fill="#8b5cf6"/>
+  <rect x="670" y="168" width="180" height="12" fill="#8b5cf6"/>
+  <text x="760" y="170" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">4. 고급 분석</text>
+  <text x="685" y="200" font-family="Arial, sans-serif" font-size="10" fill="#475569">VLM 이미지 분석</text>
+  <text x="685" y="215" font-family="Arial, sans-serif" font-size="10" fill="#475569">빅데이터 패턴 분석</text>
+  <text x="685" y="230" font-family="Arial, sans-serif" font-size="10" fill="#475569">GraphRAG 지식 탐색</text>
+
+  <line x1="850" y1="195" x2="880" y2="195" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowBlue)"/>
+
+  <!-- 5. 보고서 생성 -->
+  <rect x="880" y="145" width="180" height="100" rx="12" fill="white" filter="url(#shadow)"/>
+  <rect x="880" y="145" width="180" height="35" rx="12" fill="#eab308"/>
+  <rect x="880" y="168" width="180" height="12" fill="#eab308"/>
+  <text x="970" y="170" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">5. 보고서 생성</text>
+  <text x="895" y="200" font-family="Arial, sans-serif" font-size="10" fill="#475569">분석 결과 종합</text>
+  <text x="895" y="215" font-family="Arial, sans-serif" font-size="10" fill="#475569">PDF 보고서 출력</text>
+  <text x="895" y="230" font-family="Arial, sans-serif" font-size="10" fill="#475569">내부 결재 프로세스</text>
+
+  <line x1="1060" y1="195" x2="1090" y2="195" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowBlue)"/>
+
+  <!-- 6. 조치/완료 -->
+  <rect x="1090" y="145" width="180" height="100" rx="12" fill="white" filter="url(#shadow)"/>
+  <rect x="1090" y="145" width="180" height="35" rx="12" fill="#14b8a6"/>
+  <rect x="1090" y="168" width="180" height="12" fill="#14b8a6"/>
+  <text x="1180" y="170" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">6. 조치/완료</text>
+  <text x="1105" y="200" font-family="Arial, sans-serif" font-size="10" fill="#475569">개선 조치 실행</text>
+  <text x="1105" y="215" font-family="Arial, sans-serif" font-size="10" fill="#475569">재발 방지 대책</text>
+  <text x="1105" y="230" font-family="Arial, sans-serif" font-size="10" fill="#475569">이력 저장/관리</text>
+
+  <!-- Time indicator -->
+  <rect x="1290" y="155" width="270" height="80" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+  <text x="1425" y="185" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#166534" text-anchor="middle">기존 vs 개선</text>
+  <text x="1425" y="210" font-family="Arial, sans-serif" font-size="12" fill="#475569" text-anchor="middle">3~5일 → 1일 이내</text>
+  <text x="1425" y="228" font-family="Arial, sans-serif" font-size="11" fill="#059669" text-anchor="middle" font-weight="bold">70% 이상 시간 단축</text>
+
+  <!-- Two Systems Section -->
+  <!-- 품질분석 Chatbot -->
+  <rect x="40" y="270" width="750" height="320" rx="15" fill="white" filter="url(#shadow)"/>
+  <rect x="40" y="270" width="750" height="50" rx="15" fill="url(#blueGrad)"/>
+  <rect x="40" y="305" width="750" height="15" fill="url(#blueGrad)"/>
+  <text x="415" y="303" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">품질분석 Chatbot</text>
+  <text x="700" y="303" font-family="Arial, sans-serif" font-size="12" fill="#bfdbfe">localhost:3000</text>
+
+  <!-- Chatbot Features Grid -->
+  <rect x="60" y="340" width="170" height="70" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1"/>
+  <text x="145" y="365" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#1e40af" text-anchor="middle">고객불량 확인</text>
+  <text x="145" y="385" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">메일 파싱/번역</text>
+  <text x="145" y="400" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">CS 연동</text>
+
+  <rect x="240" y="340" width="170" height="70" rx="8" fill="#dcfce7" stroke="#22c55e" stroke-width="1"/>
+  <text x="325" y="365" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#166534" text-anchor="middle">데이터 수집</text>
+  <text x="325" y="385" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">MES/QMS/EES</text>
+  <text x="325" y="400" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">통합 조회</text>
+
+  <rect x="420" y="340" width="170" height="70" rx="8" fill="#fce7f3" stroke="#ec4899" stroke-width="1"/>
+  <text x="505" y="365" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#9d174d" text-anchor="middle">기본 분석</text>
+  <text x="505" y="385" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">AI 원인 분석</text>
+  <text x="505" y="400" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">귀책부서 도출</text>
+
+  <rect x="600" y="340" width="170" height="70" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1"/>
+  <text x="685" y="365" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#4338ca" text-anchor="middle">유사 사례</text>
+  <text x="685" y="385" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">과거 이력 조회</text>
+  <text x="685" y="400" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">분석 활용</text>
+
+  <rect x="60" y="420" width="170" height="70" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1"/>
+  <text x="145" y="445" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#a16207" text-anchor="middle">보고서 관리</text>
+  <text x="145" y="465" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">과거 보고서 조회</text>
+  <text x="145" y="480" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">복사/인쇄</text>
+
+  <rect x="240" y="420" width="170" height="70" rx="8" fill="#f3e8ff" stroke="#a855f7" stroke-width="1"/>
+  <text x="325" y="445" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#7e22ce" text-anchor="middle">히스토리</text>
+  <text x="325" y="465" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">그룹별 자동 분류</text>
+  <text x="325" y="480" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">수정/복제/메일</text>
+
+  <!-- Chatbot metrics -->
+  <rect x="420" y="420" width="350" height="70" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+  <text x="595" y="442" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#166534" text-anchor="middle">도입 효과</text>
+  <text x="480" y="465" font-family="Arial, sans-serif" font-size="10" fill="#475569">접수: 30분→3분</text>
+  <text x="580" y="465" font-family="Arial, sans-serif" font-size="10" fill="#475569">수집: 2시간→1클릭</text>
+  <text x="700" y="465" font-family="Arial, sans-serif" font-size="10" fill="#475569">분석: 3일→1일</text>
+  <text x="595" y="485" font-family="Arial, sans-serif" font-size="11" fill="#059669" text-anchor="middle" font-weight="bold">연간 품질대응 비용 20% 절감</text>
+
+  <!-- Chatbot tech -->
+  <rect x="60" y="505" width="710" height="35" rx="6" fill="#f1f5f9"/>
+  <text x="415" y="528" font-family="Arial, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">Next.js | FastAPI | PostgreSQL | Ollama (Mistral) | 오프라인 운영</text>
+  <text x="720" y="528" font-family="Arial, sans-serif" font-size="11" fill="#3b82f6" font-weight="bold">20 Steps | 18분</text>
+
+  <!-- 결함분석시스템 -->
+  <rect x="810" y="270" width="750" height="320" rx="15" fill="white" filter="url(#shadow)"/>
+  <rect x="810" y="270" width="750" height="50" rx="15" fill="url(#purpleGrad)"/>
+  <rect x="810" y="305" width="750" height="15" fill="url(#purpleGrad)"/>
+  <text x="1185" y="303" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">결함분석시스템</text>
+  <text x="1470" y="303" font-family="Arial, sans-serif" font-size="12" fill="#ddd6fe">localhost:7860</text>
+
+  <!-- Gradio Features Grid -->
+  <rect x="830" y="340" width="170" height="70" rx="8" fill="#ede9fe" stroke="#a78bfa" stroke-width="1"/>
+  <text x="915" y="365" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#7c3aed" text-anchor="middle">CS 워크플로우</text>
+  <text x="915" y="385" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">4단계 분석 프로세스</text>
+  <text x="915" y="400" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">결재/미팅 자동화</text>
+
+  <rect x="1010" y="340" width="170" height="70" rx="8" fill="#ecfeff" stroke="#06b6d4" stroke-width="1"/>
+  <text x="1095" y="365" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#0891b2" text-anchor="middle">빅데이터 분석</text>
+  <text x="1095" y="385" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">데이터 레이크</text>
+  <text x="1095" y="400" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">패턴/상관관계</text>
+
+  <rect x="1190" y="340" width="170" height="70" rx="8" fill="#fff1f2" stroke="#f43f5e" stroke-width="1"/>
+  <text x="1275" y="365" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#e11d48" text-anchor="middle">VLM 이미지</text>
+  <text x="1275" y="385" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">Cosmos Reason</text>
+  <text x="1275" y="400" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">결함 자동 판별</text>
+
+  <rect x="1370" y="340" width="170" height="70" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1"/>
+  <text x="1455" y="365" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ca8a04" text-anchor="middle">품질 대시보드</text>
+  <text x="1455" y="385" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">6가지 핵심 차트</text>
+  <text x="1455" y="400" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">KPI 모니터링</text>
+
+  <rect x="830" y="420" width="170" height="70" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1"/>
+  <text x="915" y="445" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#16a34a" text-anchor="middle">GraphRAG</text>
+  <text x="915" y="465" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">지식 그래프</text>
+  <text x="915" y="480" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">Neo4j 기반</text>
+
+  <rect x="1010" y="420" width="170" height="70" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1"/>
+  <text x="1095" y="445" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#4f46e5" text-anchor="middle">그래프 시각화</text>
+  <text x="1095" y="465" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">노드/관계 탐색</text>
+  <text x="1095" y="480" font-family="Arial, sans-serif" font-size="9" fill="#475569" text-anchor="middle">서브그래프</text>
+
+  <!-- Gradio benefits -->
+  <rect x="1190" y="420" width="350" height="70" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+  <text x="1365" y="442" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#dc2626" text-anchor="middle">고급 분석 기능</text>
+  <text x="1250" y="465" font-family="Arial, sans-serif" font-size="10" fill="#475569">이미지 AI 분석</text>
+  <text x="1365" y="465" font-family="Arial, sans-serif" font-size="10" fill="#475569">지식 그래프</text>
+  <text x="1480" y="465" font-family="Arial, sans-serif" font-size="10" fill="#475569">자동 보고서</text>
+  <text x="1365" y="485" font-family="Arial, sans-serif" font-size="11" fill="#dc2626" text-anchor="middle" font-weight="bold">심층 분석으로 정확도 향상</text>
+
+  <!-- Gradio tech -->
+  <rect x="830" y="505" width="710" height="35" rx="6" fill="#f1f5f9"/>
+  <text x="1185" y="528" font-family="Arial, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">Gradio | Ollama | Cosmos Reason VLM | Neo4j | nomic-embed | 오프라인 운영</text>
+  <text x="1490" y="528" font-family="Arial, sans-serif" font-size="11" fill="#8b5cf6" font-weight="bold">20 Steps | 12분</text>
+
+  <!-- System Integration Arrow -->
+  <rect x="40" y="605" width="1520" height="60" rx="12" fill="url(#greenGrad)"/>
+  <text x="800" y="635" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">양방향 시스템 연동: 품질분석 Chatbot ⟷ 결함분석시스템</text>
+  <text x="800" y="655" font-family="Arial, sans-serif" font-size="12" fill="#d1fae5" text-anchor="middle">기본 분석 → 고급 분석 → 보고서 작성 | 원활한 업무 흐름 | 각 시스템 강점 활용</text>
+
+  <!-- Example Case -->
+  <rect x="40" y="680" width="1520" height="95" rx="12" fill="white" filter="url(#shadow)"/>
+  <rect x="40" y="680" width="1520" height="35" rx="12" fill="#f59e0b"/>
+  <rect x="40" y="703" width="1520" height="12" fill="#f59e0b"/>
+  <text x="800" y="705" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">시연 사례: Apple OLED Dead Pixel 불량 분석</text>
+
+  <text x="80" y="740" font-family="Arial, sans-serif" font-size="11" fill="#1e40af" font-weight="bold">접수</text>
+  <text x="80" y="758" font-family="Arial, sans-serif" font-size="10" fill="#475569">LOT: L2024-0115-A01</text>
+
+  <text x="250" y="740" font-family="Arial, sans-serif" font-size="11" fill="#dc2626" font-weight="bold">불량</text>
+  <text x="250" y="758" font-family="Arial, sans-serif" font-size="10" fill="#475569">23매/150매 (15.3%)</text>
+
+  <text x="420" y="740" font-family="Arial, sans-serif" font-size="11" fill="#7c3aed" font-weight="bold">AI 분석</text>
+  <text x="420" y="758" font-family="Arial, sans-serif" font-size="10" fill="#475569">CVD 온도이상 87%</text>
+
+  <text x="600" y="740" font-family="Arial, sans-serif" font-size="11" fill="#0891b2" font-weight="bold">귀책</text>
+  <text x="600" y="758" font-family="Arial, sans-serif" font-size="10" fill="#475569">Array 공정팀</text>
+
+  <text x="750" y="740" font-family="Arial, sans-serif" font-size="11" fill="#16a34a" font-weight="bold">원인</text>
+  <text x="750" y="758" font-family="Arial, sans-serif" font-size="10" fill="#475569">CVD-03 센서 드리프트</text>
+
+  <text x="950" y="740" font-family="Arial, sans-serif" font-size="11" fill="#ca8a04" font-weight="bold">조치</text>
+  <text x="950" y="758" font-family="Arial, sans-serif" font-size="10" fill="#475569">온도 센서 교체</text>
+
+  <text x="1120" y="740" font-family="Arial, sans-serif" font-size="11" fill="#059669" font-weight="bold">결과</text>
+  <text x="1120" y="758" font-family="Arial, sans-serif" font-size="10" fill="#475569">수율 88%→99%</text>
+
+  <rect x="1280" y="728" width="250" height="40" rx="8" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+  <text x="1405" y="752" font-family="Arial, sans-serif" font-size="12" fill="#166534" text-anchor="middle" font-weight="bold">분석시간: 3일 → 1일</text>
+
+  <!-- Q&A and Footer -->
+  <rect x="40" y="790" width="750" height="65" rx="10" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+  <text x="60" y="815" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#dc2626">Q&amp;A 예상 질문</text>
+  <text x="60" y="835" font-family="Arial, sans-serif" font-size="10" fill="#475569">Q. AI 모델? → Ollama 로컬 LLM (온프레미스, 보안) | Q. 오프라인? → 완전 오프라인 운영 가능</text>
+  <text x="60" y="850" font-family="Arial, sans-serif" font-size="10" fill="#475569">Q. 데이터 연동? → 현재 목업, MES/QMS API 연동 가능 | Q. 분석 정확도? → AI 참고, 최종 판단은 담당자</text>
+
+  <rect x="810" y="790" width="750" height="65" rx="10" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1"/>
+  <text x="830" y="815" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#0284c7">시연 체크리스트</text>
+  <text x="830" y="835" font-family="Arial, sans-serif" font-size="10" fill="#475569">서버 확인: ./start-servers.sh status | Frontend: localhost:3000 | Gradio: localhost:7860</text>
+  <text x="830" y="850" font-family="Arial, sans-serif" font-size="10" fill="#475569">브라우저 캐시 초기화 (Ctrl+Shift+R) | 히스토리 사이드바 펼침 확인 | 분석 대상 드롭다운 확인</text>
+
+  <!-- Footer -->
+  <text x="800" y="880" font-family="Arial, sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle">SDC 고객품질 분석 AI 시스템 v1.0 | 전체 시나리오 요약 | Page 3 of 3</text>
+</svg>
