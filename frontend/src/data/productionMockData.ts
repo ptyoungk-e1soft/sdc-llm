@@ -1148,12 +1148,12 @@ export const CUSTOMER_CONTACTS: CustomerContact[] = [
   },
   {
     contactId: "CC-002",
-    customer: "Samsung",
+    customer: "삼성전자",
     name: "김민준",
-    department: "품질관리팀",
+    department: "디스플레이 품질관리팀",
     position: "팀장",
     email: "minjun.kim@samsung.com",
-    phone: "+82-2-555-5678",
+    phone: "+82-2-2255-5678",
     preferredContact: "both",
     communicationHistory: [
       {
@@ -1161,6 +1161,103 @@ export const CUSTOMER_CONTACTS: CustomerContact[] = [
         type: "email",
         subject: "AMOLED 패널 품질 이슈",
         summary: "AMOLED_55_4K 제품 색상 편차 문의. 샘플 분석 요청.",
+        handler: "정하나"
+      },
+      {
+        date: "2024-11-20",
+        type: "meeting",
+        subject: "월간 품질 협의회",
+        summary: "11월 납품분 품질 검토. Dead Pixel 불량률 0.02% 달성 확인.",
+        handler: "박철수"
+      }
+    ]
+  },
+  {
+    contactId: "CC-003",
+    customer: "LG전자",
+    name: "이수진",
+    department: "TV 사업부 품질팀",
+    position: "과장",
+    email: "sujin.lee@lge.com",
+    phone: "+82-2-3777-1234",
+    preferredContact: "email",
+    communicationHistory: [
+      {
+        date: "2024-11-25",
+        type: "email",
+        subject: "OLED 77인치 패널 밝기 불균일 문의",
+        summary: "77인치 8K 모델 밝기 편차 관련 기술 지원 요청.",
+        handler: "이미라"
+      },
+      {
+        date: "2024-11-10",
+        type: "phone",
+        subject: "신규 모델 양산 일정 협의",
+        summary: "2025년 신모델 양산 준비 현황 공유. 품질 기준 사전 협의.",
+        handler: "김영수"
+      }
+    ]
+  },
+  {
+    contactId: "CC-004",
+    customer: "현대모비스",
+    name: "박성민",
+    department: "차량용 디스플레이팀",
+    position: "책임연구원",
+    email: "sungmin.park@hyundai-mobis.com",
+    phone: "+82-31-368-5678",
+    preferredContact: "both",
+    communicationHistory: [
+      {
+        date: "2024-12-02",
+        type: "meeting",
+        subject: "차량용 OLED 품질 기준 협의",
+        summary: "차량용 디스플레이 온도 내구성 테스트 기준 논의. -40°C ~ 85°C 범위 검증.",
+        handler: "박철수"
+      },
+      {
+        date: "2024-11-18",
+        type: "email",
+        subject: "색상 시야각 개선 요청",
+        summary: "운전석 기준 시야각 45도에서의 색상 변이 개선 요청.",
+        handler: "정하나"
+      }
+    ]
+  },
+  {
+    contactId: "CC-005",
+    customer: "SK하이닉스",
+    name: "최재원",
+    department: "장비 품질팀",
+    position: "선임",
+    email: "jaewon.choi@sk.com",
+    phone: "+82-31-5185-1234",
+    preferredContact: "email",
+    communicationHistory: [
+      {
+        date: "2024-11-28",
+        type: "email",
+        subject: "모니터용 OLED 패널 크랙 이슈",
+        summary: "물류 과정 중 발생한 패널 크랙 관련 원인 분석 요청.",
+        handler: "이미라"
+      }
+    ]
+  },
+  {
+    contactId: "CC-006",
+    customer: "한화솔루션",
+    name: "정영호",
+    department: "디스플레이소재팀",
+    position: "수석연구원",
+    email: "youngho.jung@hanwha.com",
+    phone: "+82-42-865-5678",
+    preferredContact: "phone",
+    communicationHistory: [
+      {
+        date: "2024-11-22",
+        type: "phone",
+        subject: "32인치 모니터용 패널 품질 논의",
+        summary: "줄무늬 패턴 불량 관련 IC 출력 편차 분석 결과 공유.",
         handler: "정하나"
       }
     ]
